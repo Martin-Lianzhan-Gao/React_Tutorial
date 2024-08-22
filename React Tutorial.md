@@ -182,6 +182,21 @@ function MyComponent() {
 
 这个语法糖使得 JSX 更加接近 HTML，同时避免了与 JavaScript 保留字的冲突。
 
+### 4 变量承载html代码 （JSX特性）
+
+```react
+
+function UserGreeting(props) { 
+		// 用变量承载html代码
+    const welcomeMessage = <h2>Welcome {props.username}</h2>;
+    const loginPrompt = <h2>Please log in to continue </h2>;
+
+    return (props.isLoggedIn ? welcomeMessage  : loginPrompt)
+}
+
+export default UserGreeting;
+```
+
 
 
 ## React Props
@@ -380,6 +395,165 @@ props = { name: "Default Name", age: 18, isStudent: false };
 ### 总结
 
 使用解构赋值设置默认值 (`const { name = "Default Name", age = 18, isStudent = false } = props;`) 是一种更加安全、精细化且普遍的做法。它只会为缺少的属性设置默认值，不会覆盖已经传递的属性值，因此是推荐的方式。
+
+
+
+## Conditional Rendering
+
+> [!NOTE]
+>
+> Conditional rendering allows you to control what gets rendered in your application based on certain conditions (show, hide, or change components)
+
+
+
+### 返回单个组件的conditional rendering
+
+e.g:
+
+```react
+// using logic in function component
+function UserGreeting(props) { 
+    if (props.isLoggedIn) { 
+        return <h2>Welcome { props.username }</h2>
+    } else {
+        return <h2>Please log in to continue</h2>
+    }
+}
+
+export default UserGreeting;
+```
+
+or
+
+```react
+// use TENARY OPERATOR for simple cases
+function UserGreeting(props) { 
+    return (props.isLoggedIn ? <h2>Welcome { props.username }</h2> : <h2>Please log in to continue </h2>)
+}
+
+export default UserGreeting;
+```
+
+
+
+### 返回多个组件的conditional rendering
+
+```react 
+import List from "./List.jsx";
+
+function App() {
+
+    const fruits = [
+        { id: 1, name: "Apple", calories: 95 },
+        { id: 2, name: "Orange", calories: 45 },
+        { id: 3, name: "Banana", calories: 105 },
+        { id: 4, name: "Coconut", calories: 145 },
+        { id: 5, name: "Pineapple", calories: 37 }];
+    
+    const vegetables = [
+        { id: 1, name: "Potatotes", calories: 125 },
+        { id: 2, name: "Celery", calories: 15 },
+        { id: 3, name: "Carrots", calories: 25 },
+        { id: 4, name: "Corn", calories: 63 },
+        { id: 5, name: "Broccoli", calories: 50 }];
+    
+    return (
+        <>
+            {fruits.length > 0 && <List items={fruits} category="Fruits" />}
+            {vegetables.length >0 && <List items={vegetables} category="Vegetables" />}
+        </>
+    );
+}
+```
+
+
+
+## Render Lists
+
+> [!NOTE]
+>
+> 批量解析数据，并将它们渲染，以及排序技巧。
+
+### 简单的数组数据：
+
+使用javaScript `array`的 `map`方法即可，同样适用于数组包裹数组的情况。	
+
+```react
+
+function List() {
+
+    const fruits = ["Apple", "Orange", "Banana", "Coconut", "Pineapple"];
+		
+  	// 最好给每个<li>标签加一个key, 详见下面解释
+    const listItems = fruits.map(fruit => <li>{ fruit }</li>)
+
+    return (<ol> { listItems } </ol>);
+
+}
+
+export default List;
+```
+
+### JavaScript Object作为数组元素：
+
+```react
+function List() {
+
+    const fruits = [
+        { id: 1, name: "Apple", calories: 95 },
+        { id: 2, name: "Orange", calories: 45 },
+        { id: 3, name: "Banana", calories: 105 },
+        { id: 4, name: "Coconut", calories: 145 },
+        { id: 5, name: "Pineapple", calories: 37}];
+		
+  	// "&nbsp" refers "None Breaking Space 不断行空格"
+    const listItems = fruits.map(fruit =>
+        <li key={fruit.id}>
+            {fruit.name}: &nbsp;
+            <b>{fruit.calories}</b>
+        </li>);
+
+    return (<ol> { listItems } </ol>);
+
+}
+
+export default List;
+```
+
+在这个React 函数组件 `List` 中，你创建了一个有序列表 (`<ol>`)，其中包含了几种水果的信息。
+
+#### `<li>` 的 `key` 是什么？
+
+在 React 中，当你使用 `.map()` 或其他迭代方法渲染列表时，你应该给每个列表元素（在这个例子中是每个 `<li>` 元素）提供一个唯一的 `key` 属性。这里的 `key` 是 `fruit.id`，即每个水果对象的 `id` 属性。
+
+#### 为什么 React 需要这个 `key`？
+
+`key` 帮助 React 识别哪些元素改变了、添加了或者删除了，从而有效地更新和渲染用户界面。在动态的列表中，每个元素的 `key` 应该是稳定、可预测的，并且是唯一的，这样 React 在进行 DOM 更新时能够通过 `key` 追踪每个元素的变化。如果没有 `key`，React 的更新过程会更复杂且性能可能会下降，尤其是在大型列表和高动态更新的场景中。
+
+#### `&nbsp;` 是什么？
+
+`&nbsp;` 是 HTML 中的一个实体，代表“non-breaking space”，即不断行空格。它用来在文本中插入一个空格，这个空格在显示时不能被换行处理。在你的代码中，`&nbsp;` 用来确保冒号（`:`）后有一个空格，使得格式看起来更整洁。
+
+
+
+### 使用`map`和`filter`对数组元素进行对比排序或者过滤
+
+```react
+    // Compare...
+		// 对比排序
+    fruits.sort((a, b) => a.name.localeCompare(b.name)); // ALPHABETICAL
+    fruits.sort((a, b) => b.name.localeCompare(a.name)); // REVERSE ALPHABETICAL
+    fruits.sort((a, b) => a.calories - b.calories); // NUMERICAL
+
+    // Filter...
+		// 过滤
+    const lowCalFruits = fruits.filter(fruit => fruit.calories < 100);
+    const highCalFruits = fruits.filter(fruit => fruit.calories >= 100);
+```
+
+
+
+
 
 
 

@@ -1,12 +1,26 @@
-import Student from "./Student";
+import List from "./List.jsx";
 
 function App() {
+
+    const fruits = [
+        { id: 1, name: "Apple", calories: 95 },
+        { id: 2, name: "Orange", calories: 45 },
+        { id: 3, name: "Banana", calories: 105 },
+        { id: 4, name: "Coconut", calories: 145 },
+        { id: 5, name: "Pineapple", calories: 37 }];
+    
+    const vegetables = [
+        { id: 1, name: "Potatotes", calories: 125 },
+        { id: 2, name: "Celery", calories: 15 },
+        { id: 3, name: "Carrots", calories: 25 },
+        { id: 4, name: "Corn", calories: 63 },
+        { id: 5, name: "Broccoli", calories: 50 }];
+    
     return (
         <>
-            <Student name="Spongebob" age={ 23 } isStudent={true} />
-            <Student />
+            {fruits.length > 0 && <List items={fruits} category="Fruits" />}
+            {vegetables.length >0 && <List items={vegetables} category="Vegetables" />}
         </>
-        
     );
 }
 
